@@ -18,7 +18,7 @@ app.use(bodyParser.json());
 // from a cloud data store
 const mockEvents = {
     events: [
-        { title: 'an event', id: 1, description: 'something really cool' },
+        { title: 'CND Workshop Day 1', id: 1, description: 'Cloud Native Development Bootcamp Day 1 on April 6th 2020' },
         { title: 'another event', id: 2, description: 'something even cooler' }
     ]
 };
