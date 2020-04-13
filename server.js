@@ -19,7 +19,8 @@ app.use(bodyParser.json());
 const mockEvents = {
     events: [
         { title: 'CND Workshop Day 1', id: 1, description: 'Cloud Native Development Bootcamp Day 1 on April 6th 2020' },
-        { title: 'another event', id: 2, description: 'something even cooler' }
+        { title: 'CND Workshop Day 2', id: 2, description: 'Cloud Native Development Bootcamp Day 2 on April 7th 2020' },
+        { title: 'CND Workshop Day 3', id: 3, description: 'Cloud Native Development Bootcamp Day 3 on April 13th 2020'}
     ]
 };
 
