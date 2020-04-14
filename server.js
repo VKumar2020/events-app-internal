@@ -14,6 +14,17 @@ const app = express();
 // the backend server will parse json, not a form request
 app.use(bodyParser.json());
 
+// bring in firestore
+const Firestore = require("@google-cloud/firestore");
+
+// initialize Firestore and set project id from env var
+const firestore = new Firestore(
+    {
+        projectId: process.env.GOOGLE_CLOUD_PROJECT
+    }
+);
+
+
 // mock events data - for a real solution this data should be coming 
 // from a cloud data store
  const mockEvents = {
@@ -21,12 +32,29 @@ app.use(bodyParser.json());
         { title: 'CND Workshop Day 1', id: 1, description: 'Cloud Native Development Bootcamp Day 1',date: 'April 6th 2020', location: 'Orlando', likes: 0 },
         { title: 'CND Workshop Day 2', id: 1, description: 'Cloud Native Development Bootcamp Day 2',date: 'April 7th 2020', location: 'Lake Mary', likes: 0 },
         { title: 'CND Workshop Day 3', id: 1, description: 'Cloud Native Development Bootcamp Day 3',date: 'April 13th 2020', location: 'Zoom Room', likes:0},
-        {title: 'CND Workshop Day 4', id: 1, description: 'Cloud Native Development Bootcamp Day 4',date: 'April 14th 2020', location: 'Virtual', likes:0 }
+       {title: 'CND Workshop Day 4', id: 1, description: 'Cloud Native Development Bootcamp Day 4',date: 'April 14th 2020', location: 'Virtual', likes:0 }
     ]
 };
 
-
-
+function getEvents(req, res) {
+    firestore.collection("Events").get()
+        .then((snapshot) => {
+            if (!snapshot.empty) {
+                const ret = { events: []};
+                snapshot.docs.forEach(element => {
+                    ret.events.push(element.data());
+                }, this);
+                console.log(ret);
+                res.json(ret);
+            } else {
+                 res.json(mockEvents);
+            }
+        })
+        .catch((err) => {
+            console.error('Error getting events', err);
+            res.json(mockEvents);
+        });
+};
 
 // health endpoint - returns an empty array
 app.get('/', (req, res) => {
@@ -42,7 +70,8 @@ app.get('/version', (req, res) => {
 // mock events endpoint. this would be replaced by a call to a datastore
 // if you went on to develop this as a real application.
 app.get('/events', (req, res) => {
-    res.json(mockEvents);
+     getEvents(req, res);
+    //res.json(mockEvents);
 });
 
 // Adds an event - in a real solution, this would insert into a cloud datastore.
@@ -58,9 +87,14 @@ app.post('/event', (req, res) => {
         id : mockEvents.events.length + 1
      }
     // add to the mock array
-    mockEvents.events.push(ev);
+    //mockEvents.events.push(ev);
     // return the complete array
-    res.json(mockEvents);
+    //res.json(mockEvents);
+    // this will create the Events collection if it does not exist
+    firestore.collection("Events").add(ev).then(ret => {
+        getEvents(req, res);
+  });
+
 });
 
 // Likes an event - in a real solution, this would update a cloud datastore.
