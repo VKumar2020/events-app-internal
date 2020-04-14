@@ -16,11 +16,12 @@ app.use(bodyParser.json());
 
 // mock events data - for a real solution this data should be coming 
 // from a cloud data store
-const mockEvents = {
+ const mockEvents = {
     events: [
-        { title: 'CND Workshop Day 1', id: 1, description: 'Cloud Native Development Bootcamp Day 1 on April 6th 2020' },
-        { title: 'CND Workshop Day 2', id: 2, description: 'Cloud Native Development Bootcamp Day 2 on April 7th 2020' },
-        { title: 'CND Workshop Day 3', id: 3, description: 'Cloud Native Development Bootcamp Day 3 on April 13th 2020'}
+        { title: 'CND Workshop Day 1', id: 1, description: 'Cloud Native Development Bootcamp Day 1',date: 'April 6th 2020', location: 'Orlando', likes: 0 },
+        { title: 'CND Workshop Day 2', id: 1, description: 'Cloud Native Development Bootcamp Day 2',date: 'April 7th 2020', location: 'Lake Mary', likes: 0 },
+        { title: 'CND Workshop Day 3', id: 1, description: 'Cloud Native Development Bootcamp Day 3',date: 'April 13th 2020', location: 'Zoom Room', likes:0},
+        {title: 'CND Workshop Day 4', id: 1, description: 'Cloud Native Development Bootcamp Day 4',date: 'April 14th 2020', location: 'Virtual', likes:0 }
     ]
 };
 
@@ -50,13 +51,40 @@ app.get('/events', (req, res) => {
 app.post('/event', (req, res) => {
     // create a new object from the json data and add an id
     const ev = { 
-        title: req.body.title, 
+     title: req.body.title, 
         description: req.body.description,
+        location: req.body.location,
+        likes: 0,
         id : mockEvents.events.length + 1
      }
     // add to the mock array
     mockEvents.events.push(ev);
     // return the complete array
+    res.json(mockEvents);
+});
+
+// Likes an event - in a real solution, this would update a cloud datastore.
+// Currently this simply increments the like counter in the mock array in memory
+// this will produce unexpected behavior in a stateless kubernetes cluster. 
+app.post('/event/like', (req, res) => {
+    console.log (req.body.id);
+    var objIndex = mockEvents.events.findIndex((obj => obj.id == req.body.id));
+    var likes = mockEvents.events[objIndex].likes;
+    mockEvents.events[objIndex].likes = ++likes;
+    res.json(mockEvents);
+});
+
+// unlikes an event - in a real solution, this would update a cloud datastore.
+// Currently this simply decrements the like counter in the mock array in memory
+// this will produce unexpected behavior in a stateless kubernetes cluster. 
+app.delete('/event/like', (req, res) => {
+    
+    console.log (req.body.id);
+    var objIndex = mockEvents.events.findIndex((obj => obj.id == req.body.id));
+    var likes = mockEvents.events[objIndex].likes;
+    if (likes > 0) {
+        mockEvents.events[objIndex].likes = --likes;
+    }
     res.json(mockEvents);
 });
 
